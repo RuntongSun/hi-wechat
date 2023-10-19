@@ -1,10 +1,39 @@
+import time
 from datetime import datetime
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 
+
+@app.route('/wechat', methods=['GET', 'POST'])
+def wechat():
+    if request.method == 'GET':
+        # 这里处理 GET 请求
+        # 如果微信公众号有发送验证请求，可以在这里处理
+        # 否则，您可以根据需要自定义处理
+        return "success"  # 对微信服务器返回 "success" 或其他必要的响应
+
+    elif request.method == 'POST':
+        # 处理微信服务器的消息推送请求
+        # 获取JSON数据
+        json_data = request.get_json()
+
+        # 提取所需字段
+        to_user_name = json_data.get('ToUserName')
+        from_user_name = json_data.get('FromUserName')
+
+        # 构建响应消息
+        response_data = {
+            "ToUserName": from_user_name,  # 注意这里交换了ToUserName和FromUserName的值
+            "FromUserName": to_user_name,
+            "CreateTime": int(time.time()),
+            "MsgType": "text",
+            "Content": "ok"
+        }
+
+        return jsonify(response_data)
 
 @app.route('/')
 def index():
