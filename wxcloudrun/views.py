@@ -11,7 +11,7 @@ from wxcloudrun.response import make_succ_empty_response, make_succ_response, ma
 
 
 ALIYUN_SERVER_URL = 'https://g362909r31.goho.co/from-wechat'  # 更改为你的阿里云服务器API的URL
-WECHAT_MEDIA_URL = "https://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
+WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
 
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
