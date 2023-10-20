@@ -1,3 +1,4 @@
+import json
 import time
 from datetime import datetime
 
@@ -26,7 +27,8 @@ def wechat():
 
         if response_from_aliyun.status_code == 200:
             response_data = response_from_aliyun.json()
-            return jsonify(response_data)
+            response_str = json.dumps(response_data, ensure_ascii=False)
+            return response_str, 200, {'ContentType': 'application/json'}
         else:
             return "Error", 500
 
