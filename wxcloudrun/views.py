@@ -14,22 +14,20 @@ ALIYUN_SERVER_URL = 'https://g362909r31.goho.co/from-wechat'  # 更改为你的�
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     if request.method == 'GET':
-        # 这里处理 GET 请求
         return "success"
 
     elif request.method == 'POST':
-        # 获取JSON数据
         json_data = request.get_json()
 
-        # 将数据转发到阿里云服务器
-        response_from_aliyun = requests.post(ALIYUN_SERVER_URL, json=json_data)
+        headers = {
+            'Content-Type': 'application/json; charset=UTF-8'
+        }
+        response_from_aliyun = requests.post(ALIYUN_SERVER_URL, json=json_data, headers=headers)
 
-        # 从阿里云服务器获取响应数据
         if response_from_aliyun.status_code == 200:
             response_data = response_from_aliyun.json()
             return jsonify(response_data)
         else:
-            # 如果有错误，你可能需要添加额外的错误处理
             return "Error", 500
 
 @app.route('/')
