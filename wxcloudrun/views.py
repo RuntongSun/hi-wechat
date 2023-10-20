@@ -1,5 +1,7 @@
 import time
 from datetime import datetime
+
+import requests
 from flask import render_template, request, jsonify
 from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
@@ -7,33 +9,28 @@ from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 
 
+ALIYUN_SERVER_URL = 'https://g362909r31.goho.co/from-wechat'  # 更改为你的阿里云服务器API的URL
+
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     if request.method == 'GET':
         # 这里处理 GET 请求
-        # 如果微信公众号有发送验证请求，可以在这里处理
-        # 否则，您可以根据需要自定义处理
-        return "success"  # 对微信服务器返回 "success" 或其他必要的响应
+        return "success"
 
     elif request.method == 'POST':
-        # 处理微信服务器的消息推送请求
         # 获取JSON数据
         json_data = request.get_json()
 
-        # 提取所需字段
-        to_user_name = json_data.get('ToUserName')
-        from_user_name = json_data.get('FromUserName')
+        # 将数据转发到阿里云服务器
+        response_from_aliyun = requests.post(ALIYUN_SERVER_URL, json=json_data)
 
-        # 构建响应消息
-        response_data = {
-            "ToUserName": from_user_name,  # 注意这里交换了ToUserName和FromUserName的值
-            "FromUserName": to_user_name,
-            "CreateTime": int(time.time()),
-            "MsgType": "text",
-            "Content": "ok"
-        }
-
-        return jsonify(response_data)
+        # 从阿里云服务器获取响应数据
+        if response_from_aliyun.status_code == 200:
+            response_data = response_from_aliyun.json()
+            return jsonify(response_data)
+        else:
+            # 如果有错误，你可能需要添加额外的错误处理
+            return "Error", 500
 
 @app.route('/')
 def index():
