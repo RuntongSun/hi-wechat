@@ -37,9 +37,9 @@ def wechat():
         # return "success"
 
         response_from_aliyun = communication_manager.send_request(message)
-        if response_from_aliyun:
-            response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
-            wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
+        # if response_from_aliyun:
+            # response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
+            # wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
             # message = Message(action='WECHAT_BACK', data=wechat_response)
         # msg_type = json_data.get('MsgType')
         #
