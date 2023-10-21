@@ -4,8 +4,8 @@ from wxcloudrun.message import Message
 
 
 class CommunicationManager:
-    # SERVER_URL = 'https://g362909r31.goho.co/from-wechat'
-    SERVER_URL = 'http://talk-to-wechat-web-fraework-rr-kfnywatfsp.cn-hongkong.fcapp.run/from-wechat'
+    SERVER_URL = 'https://g362909r31.goho.co/from-wechat'
+    # SERVER_URL = 'http://talk-to-wechat-web-fraework-rr-kfnywatfsp.cn-hongkong.fcapp.run/from-wechat'
 
     def send_request(self, message: Message):
         """
