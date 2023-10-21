@@ -16,6 +16,16 @@ WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取�
 communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 
+
+@app.route('/from-aliyun', methods=['POST'])
+def receive_feedback():
+    feedback_data = request.get_json()
+
+    # TODO: 在这里处理反馈数据，例如更新数据库、发送通知等
+
+    print("Received feedback from Aliyun:", feedback_data)
+    wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", feedback_data)
+
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     if request.method == 'GET':
