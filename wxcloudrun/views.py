@@ -10,9 +10,11 @@ from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter
 from wxcloudrun.message import Message
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
+from wxcloudrun.wechat_manager import WeChatManager
 
 WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
 communication_manager = CommunicationManager()
+wechat_manager = WeChatManager()
 
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
@@ -21,13 +23,12 @@ def wechat():
 
     elif request.method == 'POST':
         json_data = request.get_json()
-        message = Message(action='FORWARD_MESSAGE', data=json_data) 
+        message = Message(action='FORWARD_MESSAGE', data=json_data)
+        return "success"
         response_from_aliyun = communication_manager.send_request(message)
         if response_from_aliyun:
             response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
-            return response_str, 200, {'ContentType': 'application/json'}
-        else:
-            return "Error", 500
+            wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
         # msg_type = json_data.get('MsgType')
         #
         # if msg_type in ['image', 'voice']:
