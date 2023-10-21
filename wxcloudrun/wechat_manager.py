@@ -4,7 +4,7 @@ import requests
 class WeChatManager:
     def send_text_message(self, open_id, message):
         access_token = self.get_access_token()  # 确保您有一个有效的token
-        url = f"http://api.weixin.qq.com/cgi-bin/message/custom/send"
+        url = f"http://api.weixin.qq.com/cgi-bin/message/custom/send?"
         message_data = {
             "touser": open_id,
             "msgtype": "text",
