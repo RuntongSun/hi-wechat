@@ -22,9 +22,15 @@ def receive_feedback():
     feedback_data = request.get_json()
 
     # TODO: 在这里处理反馈数据，例如更新数据库、发送通知等
+    if not feedback_data:
+        return "No data received", 400  # 返回一个状态码和消息
 
+    # 处理数据
+    # ...
     print("Received feedback from Aliyun:", feedback_data)
     wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", feedback_data)
+    return "success", 200  # 确保有返回语句
+
 
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
