@@ -27,8 +27,8 @@ def receive_feedback():
 
     # 处理数据
     # ...
-    print("Received feedback from Aliyun:", feedback_data)
-    wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", feedback_data)
+    # print("Received feedback from Aliyun:", feedback_data)
+    wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "my name is TOny")
     return "success", 200  # 确保有返回语句
 
 
