@@ -40,7 +40,7 @@ def wechat():
         if response_from_aliyun:
             response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
             wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
-            message = Message(action='WECHAT_BACK', data=wechat_response)
+            # message = Message(action='WECHAT_BACK', data=wechat_response)
         # msg_type = json_data.get('MsgType')
         #
         # if msg_type in ['image', 'voice']:
