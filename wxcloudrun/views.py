@@ -24,12 +24,13 @@ def wechat():
     elif request.method == 'POST':
         json_data = request.get_json()
         message = Message(action='FORWARD_MESSAGE', data=json_data)
-        return "success"
+        # return "success"
 
         response_from_aliyun = communication_manager.send_request(message)
         if response_from_aliyun:
             response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
-            wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
+            wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
+            message = Message(action='WECHAT_BACK', data=wechat_response)
         # msg_type = json_data.get('MsgType')
         #
         # if msg_type in ['image', 'voice']:
