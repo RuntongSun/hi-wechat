@@ -21,7 +21,7 @@ def wechat():
 
     elif request.method == 'POST':
         json_data = request.get_json()
-        message = Message(action='FORWARD_MESSAGE', data=json_data)
+        message = Message(action='FORWARD_MESSAGE', data=json_data) 
         response_from_aliyun = communication_manager.send_request(message)
         if response_from_aliyun:
             response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
