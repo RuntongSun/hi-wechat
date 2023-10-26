@@ -25,11 +25,18 @@ def receive_feedback():
     if not feedback_data:
         return jsonify({"error": "No data received"}), 400
 
+    # 从请求数据中提取open_id和message
+    open_id = feedback_data.get("touser")
+    message = feedback_data.get("text", {}).get("content")
+
+    if not open_id or not message:
+        return jsonify({"error": "Invalid data received"}), 400
+
     # 处理数据
     # ...
     try:
-        # 假设 send_text_message 方法返回一个字典，其中包含成功或失败的状态
-        wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "my name is Tony")
+        # 使用提取的 open_id 和 message 调用 send_text_message 方法
+        wechat_response = wechat_manager.send_text_message(open_id, message)
 
         if wechat_response.get("error"):
             logging.error(f"Failed to send WeChat message: {wechat_response.get('error')}")
