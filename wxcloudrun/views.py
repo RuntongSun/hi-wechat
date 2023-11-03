@@ -28,7 +28,10 @@ def receive_feedback():
     # 从请求数据中提取open_id和message
     open_id = feedback_data.get("touser")
     message = feedback_data.get("text", {}).get("content")
-
+    if '\\' in message:
+        message_actual = message.encode().decode('unicode_escape')
+    else:
+        message_actual = message
     if not open_id or not message:
         return jsonify({"error": "Invalid data received"}), 400
 
@@ -36,7 +39,7 @@ def receive_feedback():
     # ...
     try:
         # 使用提取的 open_id 和 message 调用 send_text_message 方法
-        wechat_response = wechat_manager.send_text_message(open_id, message)
+        wechat_response = wechat_manager.send_text_message(open_id, message_actual)
 
         if wechat_response.get("error"):
             logging.error(f"Failed to send WeChat message: {wechat_response.get('error')}")
