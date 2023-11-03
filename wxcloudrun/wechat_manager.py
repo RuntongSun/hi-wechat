@@ -11,7 +11,7 @@ class WeChatManager:
             "touser": open_id,
             "msgtype": "text",
             "text": {
-                "content": message
+                "content": message 
             }
         }
         # json_message = message_data.dumps(message, ensure_ascii=False)
