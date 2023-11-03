@@ -28,6 +28,7 @@ def receive_feedback():
     # 从请求数据中提取open_id和message
     open_id = feedback_data.get("touser")
     message = feedback_data.get("text", {}).get("content")
+    print(message)
     if '\\' in message:
         message_actual = message.encode().decode('unicode_escape')
     else:
@@ -39,6 +40,7 @@ def receive_feedback():
     # ...
     try:
         # 使用提取的 open_id 和 message 调用 send_text_message 方法
+        print(message_actual)
         wechat_response = wechat_manager.send_text_message(open_id, message_actual)
 
         if wechat_response.get("error"):
