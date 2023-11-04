@@ -25,21 +25,23 @@ def receive_feedback():
     message = None
     media_id = None
 
+    if request.content_type == 'application/json':
+        feedback_data = request.get_json()
+        if not feedback_data:
+            return jsonify({"error": "No data received"}), 400
+        open_id = feedback_data.get("touser")
+        msg_type = feedback_data.get("msgtype")
+        if msg_type == "text":
+            message = feedback_data.get("text", {}).get("content")
+        elif msg_type == "image":
+            media_id = feedback_data.get("image", {}).get("media_id")
 
-    feedback_data = request.get_json()
-    if not feedback_data:
-        return jsonify({"error": "No data received"}), 400
-    open_id = feedback_data.get("touser")
-    msg_type = feedback_data.get("msgtype")
-    if msg_type == "text":
-        message = feedback_data.get("text", {}).get("content")
-    elif msg_type == "image":
-        media_id = feedback_data.get("image", {}).get("media_id")
-        if not media_id and 'media' in request.files:
-            file = request.files['media']  # 获取上传的文件
-            # 假设这个方法上传文件并返回media_id
+    else:  # 处理表单数据或文件上传
+        open_id = request.form.get("touser")
+        msg_type = request.form.get("msgtype")
+        if 'media' in request.files:
+            file = request.files['media']
             media_id = wechat_manager.upload_image_file(file)
-
 
     if not open_id or (msg_type == "text" and not message) or (msg_type == "image" and not media_id):
         return jsonify({"error": "Invalid data received"}), 400
