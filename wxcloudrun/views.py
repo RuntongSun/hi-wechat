@@ -39,12 +39,26 @@ def receive_feedback():
     else:  # 处理表单数据或文件上传
         open_id = request.form.get("touser")
         msg_type = request.form.get("msgtype")
+        file_upload_success = False
+        file_retrieved = False
+        file = None
         if 'media' in request.files:
+            file_retrieved = True
             file = request.files['media']
             media_id = wechat_manager.upload_image_file(file)
+            if media_id:
+                file_upload_success = True
 
     if not open_id or (msg_type == "text" and not message) or (msg_type == "image" and not media_id):
-        return jsonify({"error": "Invalid data received"}), 400
+        response_data = {
+            "error": "Invalid data received",
+            "file_retrieved": file_retrieved,
+            "file_upload_success": file_upload_success,
+            "media_id": media_id
+        }
+        if file and not media_id:
+            response_data["error"] += " - File was retrieved but upload failed"
+        return jsonify(response_data), 400
 
     try:
         if msg_type == "text":
