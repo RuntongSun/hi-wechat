@@ -61,8 +61,12 @@ class WeChatManager:
             response = requests.post(url, files=files)
             response.raise_for_status()  # 如果发送失败，抛出异常
             result = response.json()
-            return result.get('media_id')  # 返回media_id
+            media_id = result.get('media_id')
+            if media_id:
+                return {'media_id': media_id}
+            else:
+                # 返回一个包含错误信息的字典
+                return {'error': 'Media ID not found in response', 'details': result}
         except requests.RequestException as e:
-            print(f"上传图片失败: {e}")
-            return None
+            return {'error': 'Upload failed', 'details': str(e)}
 

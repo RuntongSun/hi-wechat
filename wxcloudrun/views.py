@@ -45,16 +45,23 @@ def receive_feedback():
         if 'media' in request.files:
             file_retrieved = True
             file = request.files['media']
-            media_id = wechat_manager.upload_image_file(file)
-            if media_id:
+            upload_result = wechat_manager.upload_image_file(file)
+            if 'error' in upload_result:
+                # 处理错误，可以将信息记录到日志或者返回到响应中
+                error_details = upload_result.get('details', 'No details provided')
+                # ... 其他错误处理逻辑
+            else:
+                media_id = upload_result['media_id']
                 file_upload_success = True
+
 
     if not open_id or (msg_type == "text" and not message) or (msg_type == "image" and not media_id):
         response_data = {
             "error": "Invalid data received",
             "file_retrieved": file_retrieved,
             "file_upload_success": file_upload_success,
-            "media_id": media_id
+            "media_id": media_id,
+            "error_details": error_details
         }
         if file and not media_id:
             response_data["error"] += " - File was retrieved but upload failed"
