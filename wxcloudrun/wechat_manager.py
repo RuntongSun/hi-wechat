@@ -58,7 +58,7 @@ class WeChatManager:
         url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=image"
         files = {'media': (file.filename, file, 'image/jpeg')}
         try:
-            response = requests.post(url, files=files)
+            response = requests.post(url, files=files, verify=False)
             response.raise_for_status()  # 如果发送失败，抛出异常
             result = response.json()
             media_id = result.get('media_id')
