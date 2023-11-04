@@ -38,7 +38,7 @@ def receive_feedback():
             if not media_id and 'media' in request.files:
                 file = request.files['media']  # 获取上传的文件
                 # 假设这个方法上传文件并返回media_id
-                media_id = wechat_manager.upload_image_file(file)
+                media_id = wechat_manager.upload_image_file(file)   
     else:  # 处理表单数据或文件上传
         return jsonify({"error": "Not json data"}), 400
 
