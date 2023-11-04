@@ -69,17 +69,19 @@ def receive_feedback():
 
     try:
         if msg_type == "text":
+            # logging.info(f"Sending text message to {open_id} with message {message}")
             wechat_response = wechat_manager.send_text_message(open_id, message)
         elif msg_type == "image":
+            # logging.info(f"Sending image message to {open_id} with media_id {media_id}")
             wechat_response = wechat_manager.send_image_message(open_id, media_id)
 
+        # 这里检查响应内容也是一个好主意
         if wechat_response and wechat_response.get("error"):
-            logging.error(f"Failed to send WeChat message: {wechat_response.get('error')}")
+            # logging.error(f"Failed to send WeChat message: {wechat_response.get('error')}")
             return jsonify({"error": "Failed to send WeChat message", "details": wechat_response.get("error")}), 500
-
     except Exception as e:
-        logging.exception("An error occurred when trying to send WeChat message.")
-        return jsonify({"error": "An unexpected error occurred"}), 500
+        # logging.exception("An error occurred when trying to send WeChat message.")
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
     return jsonify({"success": True}), 200
 
