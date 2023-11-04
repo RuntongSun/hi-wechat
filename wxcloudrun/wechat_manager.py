@@ -47,3 +47,22 @@ class WeChatManager:
         except requests.RequestException as e:
             print(f"上传图片失败: {e}")
             return None
+
+    def upload_image_file(self, file):
+        """
+        上传文件到微信服务器
+
+        :param file: 文件对象，比如从 request.files['media'] 获取的
+        :return: 微信服务器返回的media_id
+        """
+        url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=image"
+        files = {'media': (file.filename, file, 'image/jpeg')}
+        try:
+            response = requests.post(url, files=files)
+            response.raise_for_status()  # 如果发送失败，抛出异常
+            result = response.json()
+            return result.get('media_id')  # 返回media_id
+        except requests.RequestException as e:
+            print(f"上传图片失败: {e}")
+            return None
+
