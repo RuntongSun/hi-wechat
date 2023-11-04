@@ -25,27 +25,39 @@ def receive_feedback():
     if not feedback_data:
         return jsonify({"error": "No data received"}), 400
 
-    # 从请求数据中提取open_id和message
     open_id = feedback_data.get("touser")
-    message = feedback_data.get("text", {}).get("content")
-    print(message)
-    if '\\' in message:
-        message_actual = message.encode().decode('unicode_escape')
-    else:
-        message_actual = message
-    if not open_id or not message:
+    msg_type = feedback_data.get("msgtype")
+    message = None
+    media_id = None
+
+    if msg_type == "text":
+        message = feedback_data.get("text", {}).get("content")
+    elif msg_type == "image":
+        image_data = feedback_data.get("image", {}).get("media")  # 图片数据或者图片ID
+
+        # 如果image_data是一个有效的media_id格式
+        if isinstance(image_data, str) and not image_data.startswith("http"):
+            media_id = image_data
+        else:  # 如果是图片数据
+            # 这里需要调用上传图片的函数
+            media_id = wechat_manager.upload_image_data(image_data)  # 假设这个方法接收二进制数据
+
+    print(message or media_id)
+
+    if not open_id or (not message and not media_id):
         return jsonify({"error": "Invalid data received"}), 400
 
-    # 处理数据
-    # ...
     try:
-        # 使用提取的 open_id 和 message 调用 send_text_message 方法
-        print(message_actual)
-        wechat_response = wechat_manager.send_text_message(open_id, message_actual)
+        wechat_response = None
+        if message:  # 发送文本消息
+            wechat_response = wechat_manager.send_text_message(open_id, message)
+        elif media_id:  # 发送图片消息
+            wechat_response = wechat_manager.send_image_message(open_id, media_id)
 
-        if wechat_response.get("error"):
+        if wechat_response and wechat_response.get("error"):
             logging.error(f"Failed to send WeChat message: {wechat_response.get('error')}")
             return jsonify({"error": "Failed to send WeChat message", "details": wechat_response.get("error")}), 500
+
     except Exception as e:
         logging.exception("An error occurred when trying to send WeChat message.")
         return jsonify({"error": "An unexpected error occurred"}), 500
