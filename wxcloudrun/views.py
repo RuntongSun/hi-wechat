@@ -20,38 +20,35 @@ wechat_manager = WeChatManager()
 
 @app.route('/from-aliyun', methods=['POST'])
 def receive_feedback():
-    feedback_data = request.get_json()
-
-    if not feedback_data:
-        return jsonify({"error": "No data received"}), 400
-
-    open_id = feedback_data.get("touser")
-    msg_type = feedback_data.get("msgtype")
+    open_id = None
+    msg_type = None
     message = None
     media_id = None
 
-    if msg_type == "text":
-        message = feedback_data.get("text", {}).get("content")
-    elif msg_type == "image":
-        image_data = feedback_data.get("image", {}).get("media")  # 图片数据或者图片ID
+    if request.content_type == 'application/json':
+        feedback_data = request.get_json()
+        if not feedback_data:
+            return jsonify({"error": "No data received"}), 400
+        open_id = feedback_data.get("touser")
+        msg_type = feedback_data.get("msgtype")
+        if msg_type == "text":
+            message = feedback_data.get("text", {}).get("content")
+        elif msg_type == "image":
+            media_id = feedback_data.get("image", {}).get("media_id")
+    else:  # 处理表单数据或文件上传
+        open_id = request.form.get("touser")
+        msg_type = request.form.get("msgtype")
+        if 'media' in request.files:
+            file = request.files['media']
+            media_id = wechat_manager.upload_image_file(file)
 
-        # 如果image_data是一个有效的media_id格式
-        if isinstance(image_data, str) and not image_data.startswith("http"):
-            media_id = image_data
-        else:  # 如果是图片数据
-            # 这里需要调用上传图片的函数
-            media_id = wechat_manager.upload_image_data(image_data)  # 假设这个方法接收二进制数据
-
-    print(message or media_id)
-
-    if not open_id or (not message and not media_id):
+    if not open_id or (msg_type == "text" and not message) or (msg_type == "image" and not media_id):
         return jsonify({"error": "Invalid data received"}), 400
 
     try:
-        wechat_response = None
-        if message:  # 发送文本消息
+        if msg_type == "text":
             wechat_response = wechat_manager.send_text_message(open_id, message)
-        elif media_id:  # 发送图片消息
+        elif msg_type == "image":
             wechat_response = wechat_manager.send_image_message(open_id, media_id)
 
         if wechat_response and wechat_response.get("error"):
