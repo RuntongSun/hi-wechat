@@ -24,6 +24,10 @@ def receive_feedback():
     msg_type = None
     message = None
     media_id = None
+    error_details = None  # Ensure this variable is in scope
+    file_upload_success = False
+    file_retrieved = False
+    file = None
 
     if request.content_type == 'application/json':
         feedback_data = request.get_json()
@@ -36,26 +40,27 @@ def receive_feedback():
         elif msg_type == "image":
             media_id = feedback_data.get("image", {}).get("media_id")
 
-    else:  # 处理表单数据或文件上传
+    else:  # handle form data or file uploads
         open_id = request.form.get("touser")
         msg_type = request.form.get("msgtype")
-        file_upload_success = False
-        file_retrieved = False
-        file = None
         if 'media' in request.files:
             file_retrieved = True
             file = request.files['media']
-            upload_result = wechat_manager.upload_image_file(file)
-            if 'error' in upload_result:
-                # 处理错误，可以将信息记录到日志或者返回到响应中
-                error_details = upload_result.get('details', 'No details provided')
-                # ... 其他错误处理逻辑
+            if msg_type == "image":
+                upload_result = wechat_manager.upload_image_file(file)
+            elif msg_type == "voice":
+                upload_result = wechat_manager.upload_voice_file(file)
             else:
-                media_id = upload_result['media_id']
+                return jsonify({"error": "Unsupported message type"}), 400
+
+            if 'error' in upload_result:
+                error_details = upload_result.get('details', 'No details provided')
+            else:
+                media_id = upload_result.get('media_id')
                 file_upload_success = True
 
-
-    if not open_id or (msg_type == "text" and not message) or (msg_type == "image" and not media_id):
+    # Verify if necessary data is received
+    if not open_id or (msg_type in ["text", "voice", "image"] and not media_id):
         response_data = {
             "error": "Invalid data received",
             "file_retrieved": file_retrieved,
@@ -63,24 +68,26 @@ def receive_feedback():
             "media_id": media_id,
             "error_details": error_details
         }
+
         if file and not media_id:
             response_data["error"] += " - File was retrieved but upload failed"
         return jsonify(response_data), 400
 
+    # Send message
     try:
         if msg_type == "text":
-            # logging.info(f"Sending text message to {open_id} with message {message}")
             wechat_response = wechat_manager.send_text_message(open_id, message)
         elif msg_type == "image":
-            # logging.info(f"Sending image message to {open_id} with media_id {media_id}")
             wechat_response = wechat_manager.send_image_message(open_id, media_id)
+        elif msg_type == "voice":
+            wechat_response = wechat_manager.send_voice_message(open_id, media_id)
+        else:
+            return jsonify({"error": "Unsupported message type"}), 400
 
-        # 这里检查响应内容也是一个好主意
-        if wechat_response and wechat_response.get("error"):
-            # logging.error(f"Failed to send WeChat message: {wechat_response.get('error')}")
-            return jsonify({"error": "Failed to send WeChat message", "details": wechat_response.get("error")}), 500
+        if wechat_response.get("errcode") != 0:
+            return jsonify({"error": "Failed to send WeChat message", "details": wechat_response}), 500
+
     except Exception as e:
-        # logging.exception("An error occurred when trying to send WeChat message.")
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
     return jsonify({"success": True}), 200

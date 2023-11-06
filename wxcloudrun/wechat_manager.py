@@ -70,3 +70,44 @@ class WeChatManager:
         except requests.RequestException as e:
             return {'error': 'Upload failed', 'details': str(e)}
 
+    def send_voice_message(self, user_id, media_id):
+        """
+        发送语音消息
+
+        :param user_id: 用户的 OpenID
+        :param media_id: 通过微信上传音频文件得到的 media_id
+        :return: 微信服务器返回的响应
+        """
+        url = "https://api.weixin.qq.com/cgi-bin/message/custom/send"
+        message_data = {
+            "touser": user_id,
+            "msgtype": "voice",
+            "voice": {
+                "media_id": media_id
+            }
+        }
+        response = requests.post(url, json=message_data, verify=False)
+        return response.json()
+
+    def upload_voice_file(self, file):
+        """
+        上传语音文件到微信服务器
+
+        :param file: 文件对象，比如从 request.files['media'] 获取的
+        :return: 微信服务器返回的media_id
+        """
+        url = "https://api.weixin.qq.com/cgi-bin/media/upload?type=voice"
+        files = {'media': (file.filename, file, 'audio/mpeg')}  # 假设语音文件为 mp3 格式
+        try:
+            response = requests.post(url, files=files, verify=False)
+            response.raise_for_status()  # 如果发送失败，抛出异常
+            result = response.json()
+            media_id = result.get('media_id')
+            if media_id:
+                return {'media_id': media_id}
+            else:
+                # 返回一个包含错误信息的字典
+                return {'error': 'Media ID not found in response', 'details': result}
+        except requests.RequestException as e:
+            return {'error': 'Upload failed', 'details': str(e)}
+
