@@ -90,7 +90,7 @@ def receive_feedback():
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
-    return jsonify({"success": True}), 200
+    return jsonify({"success": True, "data":wechat_response}), 200
 
 
 @app.route('/wechat', methods=['GET', 'POST'])
