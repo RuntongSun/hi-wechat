@@ -39,7 +39,8 @@ def receive_feedback():
             message = feedback_data.get("text", {}).get("content")
         elif msg_type == "image":
             media_id = feedback_data.get("image", {}).get("media_id")
-
+        elif msg_type == "voice":
+            media_id = feedback_data.get("voice", {}).get("media_id")
     else:  # handle form data or file uploads
         open_id = request.form.get("touser")
         msg_type = request.form.get("msgtype")
