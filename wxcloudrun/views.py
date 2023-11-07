@@ -90,7 +90,7 @@ def receive_feedback():
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
-    return jsonify({"success": True, "data":wechat_response}), 200
+    return jsonify({"success": True, "media_id": media_id}), 200
 
 
 @app.route('/wechat', methods=['GET', 'POST'])
@@ -102,13 +102,12 @@ def wechat():
         json_data = request.get_json()
         message = Message(action='FORWARD_MESSAGE', data=json_data)
 
-
         response_from_aliyun = communication_manager.send_request(message)
         return "success"
         # if response_from_aliyun:
-            # response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
-            # wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
-            # message = Message(action='WECHAT_BACK', data=wechat_response)
+        # response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
+        # wechat_response = wechat_manager.send_text_message("oxi2qjn7b7rtE2rjT6TudqzqEXDs", "ok")
+        # message = Message(action='WECHAT_BACK', data=wechat_response)
         # msg_type = json_data.get('MsgType')
         #
         # if msg_type in ['image', 'voice']:
@@ -143,6 +142,7 @@ def wechat():
         #         return response_str, 200, {'ContentType': 'application/json'}
         #     else:
         #         return "Error", 500
+
 
 @app.route('/')
 def index():
