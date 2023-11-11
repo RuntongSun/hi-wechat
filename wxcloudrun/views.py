@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 from datetime import datetime
 
@@ -15,18 +16,17 @@ from wxcloudrun.wechat_manager import WeChatManager
 from mns.account import Account
 from mns.queue import Message
 
+
 WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
 communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 
 # 阿里云MNS的凭据和端点信息
-access_id = "LTAI4FcQZocy2md1oATeLNVK"
-access_key = "CXSP079tjLWfHpoixVKQxLtYwc0ja5"
-end_point = "http://1647939067643291.mns.cn-shanghai-internal.aliyuncs.com"
+end_point = "http://1647939067643291.mns.cn-shanghai.aliyuncs.com"
 queue_name = "wechat-msg"  # 你的MNS队列名称
 # 初始化MNS账户和队列
-account = Account(end_point, access_id, access_key)
-mns_queue = account.get_queue(queue_name)
+mns_account = Account(os.environ.get("ALI_MNS_ENDPOINT"), os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
+mns_queue = mns_account.get_queue(queue_name)
 
 
 @app.route('/from-aliyun', methods=['POST'])
