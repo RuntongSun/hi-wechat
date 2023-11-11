@@ -30,6 +30,9 @@ RUN pip config set global.index-url http://mirrors.cloud.tencent.com/pypi/simple
 # pip install scipy 等数学包失败，可使用 apk add py3-scipy 进行， 参考安装 https://pkgs.alpinelinux.org/packages?name=py3-scipy&branch=v3.13
 && pip install --user -r requirements.txt
 
+RUN pip config set global.index-url https://pypi.org/simple/ \
+&& pip install mns1.1.6
+
 # 暴露端口。
 # 此处端口必须与「服务设置」-「流水线」以及「手动上传代码包」部署时填写的端口一致，否则会部署失败。
 EXPOSE 80
