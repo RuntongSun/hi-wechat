@@ -26,7 +26,7 @@ end_point = "http://1647939067643291.mns.cn-shanghai.aliyuncs.com"
 queue_name = "wechat-msg"  # 你的MNS队列名称
 # 初始化MNS账户和队列
 mns_account = Account(os.environ.get("ALI_MNS_ENDPOINT"), os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
-mns_queue = mns_account.get_queue(queue_name)  
+mns_queue = mns_account.get_queue(queue_name)
 
 
 @app.route('/from-aliyun', methods=['POST'])
