@@ -120,9 +120,12 @@ def wechat():
             message = Message(message_body=json_data)  # 直接使用字符串，不需要编码为字节
             re_msg = mns_queue.send_message(message)
             print("Message sent to MNS. Message ID: ", re_msg.message_id)
+            send_to_logger(re_msg)
         except Exception as e:
             print("Failed to send message to MNS:", e)
+            send_to_logger(e)
             return jsonify({"status": "error", "message": "Failed to send message"}), 500
+
         return "success"
         # if response_from_aliyun:
         # response_str = json.dumps(response_from_aliyun, ensure_ascii=False)
@@ -163,6 +166,18 @@ def wechat():
         #     else:
         #         return "Error", 500
 
+def send_to_logger(json_data):
+    headers = {
+            'Content-Type': 'application/json; charset=UTF-8'
+        }
+    response_from_aliyun = requests.post("https://g362909r31.goho.co/logger", json=json_data, headers=headers)
+
+    if response_from_aliyun.status_code == 200:
+        response_data = response_from_aliyun.json()
+        response_str = json.dumps(response_data, ensure_ascii=False)
+        return response_str, 200, {'ContentType': 'application/json'}
+    else:
+        return "Error", 500
 
 @app.route('/')
 def index():
