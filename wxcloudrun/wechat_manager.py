@@ -15,7 +15,9 @@ class WeChatManager:
             }
         }
         # json_message = message_data.dumps(message, ensure_ascii=False)
-        response = requests.post(url, headers=headers, data=json.dumps(message_data, ensure_ascii=False).encode('utf-8'), verify=False)
+        response = requests.post(url, headers=headers,
+                                 json=message_data, verify=False)
+        # response = requests.post(url, headers=headers, data=json.dumps(message_data, ensure_ascii=False).encode('utf-8'), verify=False)
         return response.json()  # 这个调用将返回微信API的响应，您可能想要检查这个来确保消息已发送
 
     def send_image_message(self, user_id, media_id):
