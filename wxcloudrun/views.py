@@ -30,7 +30,6 @@ queue_name = "wechat-msg"  # 你的MNS队列名称
 mns_account = Account("http://1647939067643291.mns.cn-shanghai.aliyuncs.com", os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
 mns_queue = mns_account.get_queue(queue_name)
 
-
 @app.route('/from-aliyun', methods=['POST'])
 def receive_feedback():
     open_id = None
