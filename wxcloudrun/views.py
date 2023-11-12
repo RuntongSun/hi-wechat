@@ -6,12 +6,13 @@ from datetime import datetime
 
 import requests
 from flask import render_template, request, jsonify
-from mns.account import Account
-from mns.queue import Message
+# from mns.account import Account
+# from mns.queue import Message
 
 from run import app
 from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
+from wxcloudrun.message import Message
 
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
@@ -23,12 +24,12 @@ WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取�
 communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 
-# 阿里云MNS的凭据和端点信息
-end_point = "http://1647939067643291.mns.cn-shanghai.aliyuncs.com"
-queue_name = "wechat-msg"  # 你的MNS队列名称
-# 初始化MNS账户和队列
-mns_account = Account("http://1647939067643291.mns.cn-shanghai.aliyuncs.com", os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
-mns_queue = mns_account.get_queue(queue_name)
+# # 阿里云MNS的凭据和端点信息
+# end_point = "http://1647939067643291.mns.cn-shanghai.aliyuncs.com"
+# queue_name = "wechat-msg"  # 你的MNS队列名称
+# # 初始化MNS账户和队列
+# mns_account = Account("http://1647939067643291.mns.cn-shanghai.aliyuncs.com", os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
+# mns_queue = mns_account.get_queue(queue_name)
 
 @app.route('/from-aliyun', methods=['POST'])
 def receive_feedback():
@@ -113,19 +114,19 @@ def wechat():
 
     elif request.method == 'POST':
         json_data = request.get_json()
-        # message = Message(action='FORWARD_MESSAGE', data=json_data)
-        #
-        # response_from_aliyun = communication_manager.send_request(message)
-        try:
-            # message_body = json_data  # 获取原始消息内容，这已经是一个字符串了
-            send_to_logger(json_data)
-            message = Message(message_body=json_data)  # 直接使用字符串，不需要编码为字节
-            re_msg = mns_queue.send_message(message)
-            print("Message sent to MNS. Message ID: ", re_msg.message_id)
-            send_to_logger(re_msg)
-        except Exception as e:
-            print("Failed to send message to MNS:", e)
-            send_to_logger(e)
+        message = Message(action='FORWARD_MESSAGE', data=json_data)
+
+        response_from_aliyun = communication_manager.send_request(message)
+        # try:
+        #     # message_body = json_data  # 获取原始消息内容，这已经是一个字符串了
+        #     send_to_logger(json_data)
+        #     message = Message(message_body=json_data)  # 直接使用字符串，不需要编码为字节
+        #     re_msg = mns_queue.send_message(message)
+        #     print("Message sent to MNS. Message ID: ", re_msg.message_id)
+        #     send_to_logger(re_msg)
+        # except Exception as e:
+        #     print("Failed to send message to MNS:", e)
+        #     send_to_logger(e)
 
         return "success"
         # if response_from_aliyun:
