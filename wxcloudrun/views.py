@@ -6,15 +6,17 @@ from datetime import datetime
 
 import requests
 from flask import render_template, request, jsonify
+from mns.account import Account
+from mns.queue import Message
+
 from run import app
 from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
-from wxcloudrun.message import Message
+
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 from wxcloudrun.wechat_manager import WeChatManager
-from mns.account import Account
-from mns.queue import Message
+
 
 
 WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
