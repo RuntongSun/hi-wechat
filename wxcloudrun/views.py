@@ -119,7 +119,7 @@ def wechat():
             # message_body = json_data  # 获取原始消息内容，这已经是一个字符串了
             message = Message(message_body=json_data)  # 直接使用字符串，不需要编码为字节
             re_msg = mns_queue.send_message(message)
-            print("Message sent to MNS. Message ID:", re_msg.message_id)
+            print("Message sent to MNS. Message ID: ", re_msg.message_id)
         except Exception as e:
             print("Failed to send message to MNS:", e)
             return jsonify({"status": "error", "message": "Failed to send message"}), 500
