@@ -31,6 +31,16 @@ wechat_manager = WeChatManager()
 # mns_account = Account("http://1647939067643291.mns.cn-shanghai.aliyuncs.com", os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
 # mns_queue = mns_account.get_queue(queue_name)
 
+@app.route('/send_text', methods=['POST'])
+def send_text():
+    if request.content_type == 'application/json':
+        feedback_data = request.get_json()
+        open_id = feedback_data.get("touser")
+        msg_type = feedback_data.get("msgtype")
+        message = feedback_data.get("text", {}).get("content")
+        wechat_response = wechat_manager.send_text_message(open_id, message)
+        return jsonify({"success": True}), 200
+
 @app.route('/from-aliyun', methods=['POST'])
 def receive_feedback():
     open_id = None
