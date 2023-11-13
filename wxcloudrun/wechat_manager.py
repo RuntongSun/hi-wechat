@@ -2,6 +2,10 @@ import json
 
 import requests
 
+from wxcloudrun.oss_manager import OSSManager
+
+oss_manager = OSSManager()
+
 
 class WeChatManager:
     def send_text_message(self, open_id, message):
@@ -17,7 +21,8 @@ class WeChatManager:
         # json_message = message_data.dumps(message, ensure_ascii=False)
         # response = requests.post(url, headers=headers,
         #                          json=message_data, verify=False)
-        response = requests.post(url, headers=headers, data=json.dumps(message_data, ensure_ascii=False).encode('utf-8'), verify=False)
+        response = requests.post(url, headers=headers,
+                                 data=json.dumps(message_data, ensure_ascii=False).encode('utf-8'), verify=False)
         return response.json()  # 这个调用将返回微信API的响应，您可能想要检查这个来确保消息已发送
 
     def send_image_message(self, user_id, media_id):
@@ -49,6 +54,22 @@ class WeChatManager:
         except requests.RequestException as e:
             print(f"上传图片失败: {e}")
             return None
+
+    def upload_image(self, url):
+        files = oss_manager.download_file(url)
+        url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=image"
+        try:
+            response = requests.post(url, files=files, verify=False)
+            response.raise_for_status()  # 如果发送失败，抛出异常
+            result = response.json()
+            media_id = result.get('media_id')
+            if media_id:
+                return {'media_id': media_id}
+            else:
+                # 返回一个包含错误信息的字典
+                return {'error': 'Media ID not found in response', 'details': result}
+        except requests.RequestException as e:
+            return {'error': 'Upload failed', 'details': str(e)}
 
     def upload_image_file(self, file):
         """
@@ -112,4 +133,3 @@ class WeChatManager:
                 return {'error': 'Media ID not found in response', 'details': result}
         except requests.RequestException as e:
             return {'error': 'Upload failed', 'details': str(e)}
-

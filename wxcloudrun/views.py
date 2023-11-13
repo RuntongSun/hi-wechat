@@ -10,6 +10,7 @@ from flask import render_template, request, jsonify
 # from mns.queue import Message
 
 from run import app
+from wxcloudrun import oss_manager
 from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.message import Message
@@ -31,31 +32,13 @@ wechat_manager = WeChatManager()
 # mns_queue = mns_account.get_queue(queue_name)
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
-    open_id = request.form.get("touser")
-    # 初始化 media_id 为空，方便后面检查
-    media_id = None
-    if 'media' in request.files:
-        file = request.files['media']
-        upload_result = wechat_manager.upload_image_file(file)
+    url = request.form.get("url")
+    result = wechat_manager.upload_image(url)
 
-        if 'error' in upload_result:
-            error_details = upload_result.get('details', 'No details provided')
-            # 重新上传图片，因为服务器可能会遇到非media_id过期的问题。
-            new_upload_result = wechat_manager.upload_image_file(file)
-
-            if 'error' in new_upload_result:
-                # 仍有错误，返回错误信息
-                return jsonify(
-                    {"success": False, "details": new_upload_result.get('details', 'No details provided')}), 400
-            else:
-                media_id = new_upload_result.get('media_id')
-        else:
-            media_id = upload_result.get('media_id')
-
-    if media_id:
-        return jsonify({"success": True, "media_id": media_id}), 200
+    if "media_id" in result:
+        return jsonify({"success": True, "media_id": result["media_id"]}), 200
     else:
-        return jsonify({"success": False, "details": "No media_id obtained, please check upload logic"}), 400
+        return jsonify({"success": False, "details": result.get("details", "Unknown error")}), 400
 
 
 @app.route('/send_text', methods=['POST'])
