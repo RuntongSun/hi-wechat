@@ -24,23 +24,22 @@ communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 
 
-# # 阿里云MNS的凭据和端点信息
-# end_point = "http://1647939067643291.mns.cn-shanghai.aliyuncs.com"
-# queue_name = "wechat-msg"  # 你的MNS队列名称
-# # 初始化MNS账户和队列
-# mns_account = Account("http://1647939067643291.mns.cn-shanghai.aliyuncs.com", os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
-# mns_queue = mns_account.get_queue(queue_name)
+
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
-    if request.content_type == 'application/json':
-        feedback_data = request.get_json()
-        url = feedback_data.get("url")
-        result = wechat_manager.upload_image(url)
-
-        if "media_id" in result:
-            return jsonify({"success": True, "media_id": result["media_id"]}), 200
+    if 'media' not in request.files:
+        return 'No media file part in the request', 400
+    file = request.files['media']
+    open_id = request.form.get("touser")
+    if file and open_id:
+        upload_result = wechat_manager.upload_image_file(file)
+        if 'error' in upload_result:
+            return upload_result['error'], 500
         else:
-            return jsonify({"success": False, "details": result.get("details", "Unknown error")}), 400
+            # 这里可以实现你需要的逻辑, 比如将media_id和open_id一起处理
+            return 'File uploaded successful', 200
+    else:
+        return 'No valid media file or touser in the request', 400
 
 
 @app.route('/send_text', methods=['POST'])

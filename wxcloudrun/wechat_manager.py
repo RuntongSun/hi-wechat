@@ -1,10 +1,7 @@
 import json
+import mimetypes
 
 import requests
-
-from wxcloudrun.oss_manager import OSSManager
-
-oss_manager = OSSManager()
 
 
 class WeChatManager:
@@ -55,21 +52,8 @@ class WeChatManager:
             print(f"上传图片失败: {e}")
             return None
 
-    def upload_image(self, url):
-        files = oss_manager.download_file(url)
-        url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=image"
-        try:
-            response = requests.post(url, files=files, verify=False)
-            response.raise_for_status()  # 如果发送失败，抛出异常
-            result = response.json()
-            media_id = result.get('media_id')
-            if media_id:
-                return {'media_id': media_id}
-            else:
-                # 返回一个包含错误信息的字典
-                return {'error': 'Media ID not found in response', 'details': result}
-        except requests.RequestException as e:
-            return {'error': 'Upload failed', 'details': str(e)}
+    import os
+    import mimetypes
 
     def upload_image_file(self, file):
         """
@@ -79,7 +63,8 @@ class WeChatManager:
         :return: 微信服务器返回的media_id
         """
         url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=image"
-        files = {'media': (file.filename, file, 'image/jpeg')}
+        file_type = mimetypes.guess_type(file.filename)[0]  # 猜测真实文件类型
+        files = {'media': (file.filename, file, file_type)}  # 使用真实文件类型
         try:
             response = requests.post(url, files=files, verify=False)
             response.raise_for_status()  # 如果发送失败，抛出异常
@@ -92,6 +77,7 @@ class WeChatManager:
                 return {'error': 'Media ID not found in response', 'details': result}
         except requests.RequestException as e:
             return {'error': 'Upload failed', 'details': str(e)}
+
 
     def send_voice_message(self, user_id, media_id):
         """
