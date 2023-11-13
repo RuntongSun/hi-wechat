@@ -18,11 +18,10 @@ from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 from wxcloudrun.wechat_manager import WeChatManager
 
-
-
 WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
 communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
+
 
 # # 阿里云MNS的凭据和端点信息
 # end_point = "http://1647939067643291.mns.cn-shanghai.aliyuncs.com"
@@ -30,6 +29,34 @@ wechat_manager = WeChatManager()
 # # 初始化MNS账户和队列
 # mns_account = Account("http://1647939067643291.mns.cn-shanghai.aliyuncs.com", os.environ.get("ALI_KEY_ID"), os.environ.get("ALI_ACCESS_KEY_SECRET"))
 # mns_queue = mns_account.get_queue(queue_name)
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    open_id = request.form.get("touser")
+    # 初始化 media_id 为空，方便后面检查
+    media_id = None
+    if 'media' in request.files:
+        file = request.files['media']
+        upload_result = wechat_manager.upload_image_file(file)
+
+        if 'error' in upload_result:
+            error_details = upload_result.get('details', 'No details provided')
+            # 重新上传图片，因为服务器可能会遇到非media_id过期的问题。
+            new_upload_result = wechat_manager.upload_image_file(file)
+
+            if 'error' in new_upload_result:
+                # 仍有错误，返回错误信息
+                return jsonify(
+                    {"success": False, "details": new_upload_result.get('details', 'No details provided')}), 400
+            else:
+                media_id = new_upload_result.get('media_id')
+        else:
+            media_id = upload_result.get('media_id')
+
+    if media_id:
+        return jsonify({"success": True, "media_id": media_id}), 200
+    else:
+        return jsonify({"success": False, "details": "No media_id obtained, please check upload logic"}), 400
+
 
 @app.route('/send_text', methods=['POST'])
 def send_text():
@@ -40,6 +67,7 @@ def send_text():
         message = feedback_data.get("text", {}).get("content")
         wechat_response = wechat_manager.send_text_message(open_id, message)
         return jsonify({"success": True}), 200
+
 
 @app.route('/from-aliyun', methods=['POST'])
 def receive_feedback():
@@ -178,16 +206,18 @@ def wechat():
         #     else:
         #         return "Error", 500
 
+
 def send_to_logger(json_data):
     headers = {
-            'Content-Type': 'application/json; charset=UTF-8'
-        }
+        'Content-Type': 'application/json; charset=UTF-8'
+    }
     response = requests.post("https://g362909r31.goho.co/logger", json=json_data, headers=headers)
 
     if response.status_code == 200:
         print('ok')
     else:
         print('no')
+
 
 @app.route('/')
 def index():
