@@ -32,13 +32,15 @@ wechat_manager = WeChatManager()
 # mns_queue = mns_account.get_queue(queue_name)
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
-    url = request.form.get("url")
-    result = wechat_manager.upload_image(url)
+    if request.content_type == 'application/json':
+        feedback_data = request.get_json()
+        url = feedback_data.get("url")
+        result = wechat_manager.upload_image(url)
 
-    if "media_id" in result:
-        return jsonify({"success": True, "media_id": result["media_id"]}), 200
-    else:
-        return jsonify({"success": False, "details": result.get("details", "Unknown error")}), 400
+        if "media_id" in result:
+            return jsonify({"success": True, "media_id": result["media_id"]}), 200
+        else:
+            return jsonify({"success": False, "details": result.get("details", "Unknown error")}), 400
 
 
 @app.route('/send_text', methods=['POST'])
