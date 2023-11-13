@@ -10,7 +10,6 @@ from flask import render_template, request, jsonify
 # from mns.queue import Message
 
 from run import app
-from wxcloudrun import oss_manager
 from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.message import Message
