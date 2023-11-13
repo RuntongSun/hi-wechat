@@ -55,6 +55,16 @@ def send_text():
         wechat_response = wechat_manager.send_text_message(open_id, message)
         return jsonify({"success": True}), 200
 
+@app.route('/send_image', methods=['POST'])
+def send_image():
+    if request.content_type == 'application/json':
+        feedback_data = request.get_json()
+        open_id = feedback_data.get("touser")
+        msg_type = feedback_data.get("msgtype")
+        media_id = feedback_data.get("media_id")
+        wechat_response = wechat_manager.send_image_message(open_id, media_id)
+        return jsonify({"success": True}), 200
+
 
 @app.route('/from-aliyun', methods=['POST'])
 def receive_feedback():
