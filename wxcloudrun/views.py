@@ -36,7 +36,7 @@ def upload_image():
         feedback_data = request.get_json()
         url = feedback_data.get("url")
         result = wechat_manager.upload_image(url)
-   
+
         if "media_id" in result:
             return jsonify({"success": True, "media_id": result["media_id"]}), 200
         else:
