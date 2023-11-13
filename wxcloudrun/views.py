@@ -23,7 +23,6 @@ communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 
 
-
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     if 'media' not in request.files:
@@ -35,8 +34,13 @@ def upload_image():
         if 'error' in upload_result:
             return upload_result['error'], 500
         else:
-            # 这里可以实现你需要的逻辑, 比如将media_id和open_id一起处理
-            return 'File uploaded successful', 200
+            media_id = upload_result['media_id']
+            # 根据需求进行逻辑处理，将 media_id 和 open_id 一起处理
+            response_data = {
+                "upload_status": "File uploaded successfully",
+                "media_id": media_id
+            }
+            return jsonify(response_data), 200
     else:
         return 'No valid media file or touser in the request', 400
 
