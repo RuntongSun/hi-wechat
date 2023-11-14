@@ -105,13 +105,21 @@ class WeChatManager:
         :param file: 文件对象，比如从 request.files['media'] 获取的
         :return: 微信服务器返回的media_id
         """
+        allowed_types = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3']  # Add more audio MIME types if needed
+        file_type = file.mimetype
+
+        if file_type not in allowed_types:
+            return {'error': 'Invalid file type'}
+
         url = "https://api.weixin.qq.com/cgi-bin/media/upload?type=voice"
-        files = {'media': (file.filename, file, 'audio/mpeg')}  # 假设语音文件为 mp3 格式
+        files = {'media': (file.filename, file, file_type)}
+
         try:
             response = requests.post(url, files=files, verify=False)
             response.raise_for_status()  # 如果发送失败，抛出异常
             result = response.json()
             media_id = result.get('media_id')
+
             if media_id:
                 return {'media_id': media_id}
             else:
@@ -119,3 +127,4 @@ class WeChatManager:
                 return {'error': 'Media ID not found in response', 'details': result}
         except requests.RequestException as e:
             return {'error': 'Upload failed', 'details': str(e)}
+
