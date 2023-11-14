@@ -23,6 +23,27 @@ communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 
 
+@app.route('/upload_voice', methods=['POST'])
+def upload_voice():
+    if 'media' not in request.files:
+        return 'No media file part in the request', 400
+    file = request.files['media']
+    open_id = request.form.get("touser")
+    if file and open_id:
+        upload_result = wechat_manager.upload_image_file(file)
+        if 'error' in upload_result:
+            return upload_result['error'], 500
+        else:
+            media_id = upload_result['media_id']
+            # 根据需求进行逻辑处理，将 media_id 和 open_id 一起处理
+            response_data = {
+                "upload_status": "File uploaded successfully",
+                "media_id": media_id
+            }
+            return jsonify(response_data), 200
+    else:
+        return 'No valid media file or touser in the request', 400
+
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     if 'media' not in request.files:
@@ -63,6 +84,16 @@ def send_image():
         msg_type = feedback_data.get("msgtype")
         media_id = feedback_data.get("media_id")
         wechat_response = wechat_manager.send_image_message(open_id, media_id)
+        return jsonify({"success": True}), 200
+
+@app.route('/send_voice', methods=['POST'])
+def send_voice():
+    if request.content_type == 'application/json':
+        feedback_data = request.get_json()
+        open_id = feedback_data.get("touser")
+        msg_type = feedback_data.get("msgtype")
+        media_id = feedback_data.get("media_id")
+        wechat_response = wechat_manager.send_voice_message(open_id, media_id)
         return jsonify({"success": True}), 200
 
 
