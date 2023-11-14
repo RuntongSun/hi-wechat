@@ -99,8 +99,6 @@ def send_image():
 
         return jsonify({"success": True}), 200
 
-    abort(415)  # Unsupported Media Type
-
 
 @app.route('/send_audio', methods=['POST'])
 def send_audio():
@@ -122,8 +120,6 @@ def send_audio():
         #     return jsonify({"error": str(e), 'wechat_response': wechat_response}), 500
 
         return jsonify({"success": 'True'}), 200
-
-    abort(415)  # Unsupported Media Type
 
 
 @app.route('/wechat', methods=['GET', 'POST'])
