@@ -67,6 +67,43 @@ def upload_image():
         return 'No valid media file or touser in the request', 400
 
 
+@app.route('/send_msg', methods=['POST'])
+def send_msg():
+    if request.content_type != 'application/json':
+        return jsonify({"error": "Invalid content type. Expected application/json"}), 400
+
+    feedback_data = request.get_json()
+    if not feedback_data:
+        return jsonify({"error": "Invalid JSON data"}), 400
+
+    open_id = feedback_data.get("touser")
+    msg_type = feedback_data.get("msgtype")
+
+    if msg_type == "text":
+        message = feedback_data.get("text")
+        if not all([open_id, message]):
+            return jsonify({"error": "Missing required fields"}), 400
+        wechat_response = wechat_manager.send_text_message(open_id, message)
+
+    elif msg_type in ["image", "voice"]:
+        media_id = feedback_data.get("media_id")
+        if not all([open_id, msg_type, media_id]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        try:
+            if msg_type == "image":
+                wechat_response = wechat_manager.send_image_message(open_id, media_id)
+            elif msg_type == "voice":
+                wechat_response = wechat_manager.send_voice_message(open_id, media_id)
+        except Exception as e:
+            return jsonify({"error": str(e), 'wechat_response': wechat_response}), 500
+
+    else:
+        return jsonify({"error": f"Unsupported msgtype: {msg_type}. Only 'text', 'image', or 'audio' are supported."}), 400
+
+    return jsonify({"success": True}), 200
+
+
 @app.route('/send_text', methods=['POST'])
 def send_text():
     if request.content_type == 'application/json':
