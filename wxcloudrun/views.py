@@ -30,7 +30,7 @@ def upload_voice():
     file = request.files['media']
     open_id = request.form.get("touser")
     if file and open_id:
-        upload_result = wechat_manager.upload_image_file(file)
+        upload_result = wechat_manager.upload_voice_file(file)
         if 'error' in upload_result:
             return upload_result['error'], 500
         else:
