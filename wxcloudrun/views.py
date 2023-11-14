@@ -102,7 +102,7 @@ def send_image():
     abort(415)  # Unsupported Media Type
 
 
-@app.route('/send_voice', methods=['POST'])
+@app.route('/send_audio', methods=['POST'])
 def send_voice():
     if request.content_type == 'application/json':
         feedback_data = request.get_json()
