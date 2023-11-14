@@ -32,7 +32,7 @@ def upload_voice():
     if file and open_id:
         upload_result = wechat_manager.upload_voice_file(file)
         if 'error' in upload_result:
-            return upload_result['error'], 500
+            return upload_result, 500
         else:
             media_id = upload_result['media_id']
             # 根据需求进行逻辑处理，将 media_id 和 open_id 一起处理
