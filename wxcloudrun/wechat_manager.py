@@ -1,5 +1,6 @@
 import json
 import mimetypes
+import os
 
 import requests
 
@@ -98,6 +99,8 @@ class WeChatManager:
         response = requests.post(url, json=message_data, verify=False)
         return response.json()
 
+    import os
+
     def upload_voice_file(self, file):
         """
         上传语音文件到微信服务器
@@ -105,14 +108,14 @@ class WeChatManager:
         :param file: 文件对象，比如从 request.files['media'] 获取的
         :return: 微信服务器返回的media_id
         """
-        allowed_types = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp3']  # Add more audio MIME types if needed
-        file_type = file.mimetype
+        allowed_extensions = ['.mp3', '.wav', '.ogg']  # 添加更多允许的声音文件后缀
+        file_extension = os.path.splitext(file.filename)[1]
 
-        if file_type not in allowed_types:
-            return {'error': 'Invalid file type:' + file_type}
+        if file_extension not in allowed_extensions:
+            return {'error': '无效的文件类型:' + file_extension}
 
         url = "https://api.weixin.qq.com/cgi-bin/media/upload?type=voice"
-        files = {'media': (file.filename, file, file_type)}
+        files = {'media': (file.filename, file, file.mimetype)}
 
         try:
             response = requests.post(url, files=files, verify=False)
@@ -124,7 +127,8 @@ class WeChatManager:
                 return {'media_id': media_id}
             else:
                 # 返回一个包含错误信息的字典
-                return {'error': 'Media ID not found in response', 'details': result}
+                return {'error': '响应中未找到media_id', 'details': result}
         except requests.RequestException as e:
-            return {'error': 'Upload failed', 'details': str(e)}
+            return {'error': '上传失败', 'details': str(e)}
+
 
