@@ -109,7 +109,7 @@ class WeChatManager:
         file_type = file.mimetype
 
         if file_type not in allowed_types:
-            return {'error': 'Invalid file type'}
+            return {'error': 'Invalid file type:' + file_type}
 
         url = "https://api.weixin.qq.com/cgi-bin/media/upload?type=voice"
         files = {'media': (file.filename, file, file_type)}
