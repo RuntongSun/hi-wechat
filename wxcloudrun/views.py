@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 
 import requests
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, abort
 # from mns.account import Account
 # from mns.queue import Message
 
@@ -80,21 +80,47 @@ def send_text():
 def send_image():
     if request.content_type == 'application/json':
         feedback_data = request.get_json()
+        if not feedback_data:
+            return jsonify({"error": "Invalid JSON data"}), 400
+
         open_id = feedback_data.get("touser")
         msg_type = feedback_data.get("msgtype")
         media_id = feedback_data.get("media_id")
-        wechat_response = wechat_manager.send_image_message(open_id, media_id)
+
+        if not all([open_id, msg_type, media_id]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        try:
+            wechat_response = wechat_manager.send_image_message(open_id, media_id)
+        except Exception as e:
+            return jsonify({"error": str(e), 'wechat_response' : wechat_response}), 500
+
         return jsonify({"success": True}), 200
+
+    abort(415)  # Unsupported Media Type
 
 @app.route('/send_voice', methods=['POST'])
 def send_voice():
     if request.content_type == 'application/json':
         feedback_data = request.get_json()
+        if not feedback_data:
+            return jsonify({"error": "Invalid JSON data"}), 400
+
         open_id = feedback_data.get("touser")
         msg_type = feedback_data.get("msgtype")
         media_id = feedback_data.get("media_id")
-        wechat_response = wechat_manager.send_voice_message(open_id, media_id)
+
+        if not all([open_id, msg_type, media_id]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        try:
+            wechat_response = wechat_manager.send_voice_message(open_id, media_id)
+        except Exception as e:
+            return jsonify({"error": str(e), 'wechat_response' : wechat_response}), 500
+
         return jsonify({"success": True}), 200
+
+    abort(415)  # Unsupported Media Type
 
 
 @app.route('/from-aliyun', methods=['POST'])
