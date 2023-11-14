@@ -44,6 +44,7 @@ def upload_voice():
     else:
         return 'No valid media file or touser in the request', 400
 
+
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
     if 'media' not in request.files:
@@ -76,6 +77,7 @@ def send_text():
         wechat_response = wechat_manager.send_text_message(open_id, message)
         return jsonify({"success": True}), 200
 
+
 @app.route('/send_image', methods=['POST'])
 def send_image():
     if request.content_type == 'application/json':
@@ -93,11 +95,12 @@ def send_image():
         try:
             wechat_response = wechat_manager.send_image_message(open_id, media_id)
         except Exception as e:
-            return jsonify({"error": str(e), 'wechat_response' : wechat_response}), 500
+            return jsonify({"error": str(e), 'wechat_response': wechat_response}), 500
 
         return jsonify({"success": True}), 200
 
     abort(415)  # Unsupported Media Type
+
 
 @app.route('/send_voice', methods=['POST'])
 def send_voice():
@@ -116,7 +119,7 @@ def send_voice():
         try:
             wechat_response = wechat_manager.send_voice_message(open_id, media_id)
         except Exception as e:
-            return jsonify({"error": str(e), 'wechat_response' : wechat_response}), 500
+            return jsonify({"error": str(e), 'wechat_response': wechat_response}), 500
 
         return jsonify({"success": True}), 200
 
