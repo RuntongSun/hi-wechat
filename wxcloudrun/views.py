@@ -112,20 +112,19 @@ def wechat():
     elif request.method == 'POST':
         json_data = request.get_json()
         msg_type = json_data.get('MsgType')
+        media_id = json_data.get('MediaId')
+        user_id = json_data.get('FromUserName')  # 假设用户的微信ID在 'FromUserName' 字段中
 
-        if msg_type == 'image':
-            media_id = json_data.get('MediaId')
-            if media_id:
-                file_name = wechat_manager.get_media(media_id)
-                if file_name:
-                    json_data['OSSUrl'] = file_name
+        if msg_type in ['image', 'voice'] and media_id:
+            # 用于处理图片和语音消息
+            file_name = None
+            if msg_type == 'image':
+                file_name = wechat_manager.get_image(media_id, user_id)
+            elif msg_type == 'voice':
+                file_name = wechat_manager.get_voice(media_id, user_id)
 
-        elif msg_type == 'voice':
-            media_id = json_data.get('MediaId')
-            if media_id:
-                file_name = wechat_manager.get_media(media_id)
-                if file_name:
-                    json_data['OSSUrl'] = file_name
+            if file_name:
+                json_data['OSSUrl'] = file_name
 
         # 将处理后的消息发送给阿里云
         message = Message(action='FORWARD_MESSAGE', data=json_data)
