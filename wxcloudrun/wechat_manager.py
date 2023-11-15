@@ -110,7 +110,7 @@ class WeChatManager:
             return {'error': '上传失败', 'details': str(e)}
 
     def get_image(self, media_id, user_id):
-        image_url = f"https://api.weixin.qq.com/cgi-bin/media/get?access_token={self.access_token}&media_id={media_id}"
+        image_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
         response = requests.get(image_url, stream=True, verify=False)
         if response.status_code == 200:
             file_content = response.content
@@ -134,7 +134,7 @@ class WeChatManager:
             return None
 
     def get_voice(self, media_id, user_id):
-        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get/jssdk?access_token={self.access_token}&media_id={media_id}"
+        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get/jssdk?media_id={media_id}"
         response = requests.get(voice_url, stream=True, verify=False)
         if response.status_code == 200:
             file_content = response.content
