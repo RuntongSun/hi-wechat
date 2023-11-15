@@ -119,9 +119,9 @@ def wechat():
             # 用于处理图片和语音消息
             file_name = None
             if msg_type == 'image':
-                file_name = wechat_manager.get_image(media_id, user_id)
+                file_name = wechat_manager.get_image(media_id)
             elif msg_type == 'voice':
-                file_name = wechat_manager.get_voice(media_id, user_id)
+                file_name = wechat_manager.get_voice(media_id)
 
             if file_name:
                 json_data['OSSUrl'] = file_name

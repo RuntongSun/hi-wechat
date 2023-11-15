@@ -109,40 +109,28 @@ class WeChatManager:
         except requests.RequestException as e:
             return {'error': '上传失败', 'details': str(e)}
 
-    def get_image(self, media_id, user_id):
-        image_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
-        response = requests.get(image_url, stream=True, verify=False)
-        if response.status_code == 200:
-            file_content = response.content
-            content_type = response.headers.get('Content-Type')
-
-            # 根据内容类型确定文件扩展名
-            if content_type == 'image/jpeg':
-                file_extension = 'jpg'
-            elif content_type == 'image/png':
-                file_extension = 'png'
-            else:
-                # 如果无法识别格式，可以选择一个默认格式，或者返回错误
-                file_extension = 'jpg'  # 选择默认格式或返回错误
-
-            # 生成文件名，包括正确的文件扩展名
-            file_name = f"images/{media_id}.{file_extension}"
-            # 上传到阿里云OSS
-            oss_restful.upload_to_oss(file_name, file_content)
-            return file_name
-        else:
-            return None
-
-    def get_voice(self, media_id, user_id):
-        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get/?media_id={media_id}"
+    def get_image(self, media_id):
+        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
         response = requests.get(voice_url, stream=True, verify=False)
         if response.status_code == 200:
             file_content = response.content
-            # 将文件后缀更改为.speex
-            file_name = f"voices/{media_id}.amr"  # 使用正确的文件扩展名
+            # 生成一个唯一的文件名
+            file_name = f"voices/{media_id}.mp3"
             # 上传到阿里云OSS
-            oss_restful.upload_to_oss(file_name, file_content)
+            oss_restful.upload_to_oss(file_name, file_name)
             return file_name
         else:
             return None
 
+    def get_voice(self, media_id):
+        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
+        response = requests.get(voice_url, stream=True, verify=False)
+        if response.status_code == 200:
+            file_content = response.content
+            # 生成一个唯一的文件名
+            file_name = f"voices/{media_id}.mp3"
+            # 上传到阿里云OSS
+            oss_restful.upload_to_oss(file_name, file_name)
+            return file_name
+        else:
+            return None
