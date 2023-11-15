@@ -112,7 +112,7 @@ class WeChatManager:
 
     def get_media(self, media_id):
         voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
-        response = requests.get(voice_url, stream=True)
+        response = requests.get(voice_url, stream=True, verify=False)
         if response.status_code == 200:
             file_content = response.content
             # 生成一个唯一的文件名
