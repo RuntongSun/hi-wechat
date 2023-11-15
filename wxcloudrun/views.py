@@ -123,7 +123,7 @@ def wechat():
         elif msg_type == 'voice':
             media_id = json_data.get('MediaId')
             if media_id:
-                file_name = wechat_manager.get_voice(media_id)
+                file_name = wechat_manager.get_media(media_id)
                 if file_name:
                     json_data['OSSUrl'] = file_name
 
