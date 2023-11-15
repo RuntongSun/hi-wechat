@@ -126,7 +126,7 @@ class WeChatManager:
                 file_extension = 'jpg'  # 选择默认格式或返回错误
 
             # 生成文件名，包括正确的文件扩展名
-            file_name = f"images/{user_id}/{media_id}.{file_extension}"
+            file_name = f"images/{media_id}.{file_extension}"
             # 上传到阿里云OSS
             oss_restful.upload_to_oss(file_name, file_content)
             return file_name
@@ -139,7 +139,7 @@ class WeChatManager:
         if response.status_code == 200:
             file_content = response.content
             # 将文件后缀更改为.speex
-            file_name = f"voices/{user_id}/{media_id}.speex"  # 使用正确的文件扩展名
+            file_name = f"voices/{media_id}.speex"  # 使用正确的文件扩展名
             # 上传到阿里云OSS
             oss_restful.upload_to_oss(file_name, file_content)
             return file_name
