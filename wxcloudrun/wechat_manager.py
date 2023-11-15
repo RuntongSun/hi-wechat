@@ -134,12 +134,12 @@ class WeChatManager:
             return None
 
     def get_voice(self, media_id, user_id):
-        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get/jssdk?media_id={media_id}"
+        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get/?media_id={media_id}"
         response = requests.get(voice_url, stream=True, verify=False)
         if response.status_code == 200:
             file_content = response.content
             # 将文件后缀更改为.speex
-            file_name = f"voices/{media_id}.speex"  # 使用正确的文件扩展名
+            file_name = f"voices/{media_id}.amr"  # 使用正确的文件扩展名
             # 上传到阿里云OSS
             oss_restful.upload_to_oss(file_name, file_content)
             return file_name
