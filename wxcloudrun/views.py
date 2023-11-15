@@ -104,61 +104,6 @@ def send_msg():
     return jsonify({"success": True}), 200
 
 
-@app.route('/send_text', methods=['POST'])
-def send_text():
-    if request.content_type == 'application/json':
-        feedback_data = request.get_json()
-        open_id = feedback_data.get("touser")
-        msg_type = feedback_data.get("msgtype")
-        message = feedback_data.get("text", {}).get("content")
-        wechat_response = wechat_manager.send_text_message(open_id, message)
-        return jsonify({"success": True}), 200
-
-
-@app.route('/send_image', methods=['POST'])
-def send_image():
-    if request.content_type == 'application/json':
-        feedback_data = request.get_json()
-        if not feedback_data:
-            return jsonify({"error": "Invalid JSON data"}), 400
-
-        open_id = feedback_data.get("touser")
-        msg_type = feedback_data.get("msgtype")
-        media_id = feedback_data.get("media_id")
-
-        if not all([open_id, msg_type, media_id]):
-            return jsonify({"error": "Missing required fields"}), 400
-
-        try:
-            wechat_response = wechat_manager.send_image_message(open_id, media_id)
-        except Exception as e:
-            return jsonify({"error": str(e), 'wechat_response': wechat_response}), 500
-
-        return jsonify({"success": True}), 200
-
-
-@app.route('/send_audio', methods=['POST'])
-def send_audio():
-    if request.content_type == 'application/json':
-        # feedback_data = request.get_json()
-        # if not feedback_data:
-        #     return jsonify({"error": "Invalid JSON data"}), 400
-        #
-        # open_id = feedback_data.get("touser")
-        # msg_type = feedback_data.get("msgtype")
-        # media_id = feedback_data.get("media_id")
-        #
-        # if not all([open_id, msg_type, media_id]):
-        #     return jsonify({"error": "Missing required fields"}), 400
-        #
-        # try:
-        #     wechat_response = wechat_manager.send_voice_message(open_id, media_id)
-        # except Exception as e:
-        #     return jsonify({"error": str(e), 'wechat_response': wechat_response}), 500
-
-        return jsonify({"success": 'True'}), 200
-
-
 @app.route('/wechat', methods=['GET', 'POST'])
 def wechat():
     if request.method == 'GET':
@@ -166,8 +111,24 @@ def wechat():
 
     elif request.method == 'POST':
         json_data = request.get_json()
-        message = Message(action='FORWARD_MESSAGE', data=json_data)
+        msg_type = json_data.get('MsgType')
 
+        if msg_type == 'image':
+            media_id = json_data.get('MediaId')
+            if media_id:
+                file_name = wechat_manager.get_media(media_id)
+                if file_name:
+                    json_data['OSSUrl'] = file_name
+
+        elif msg_type == 'voice':
+            media_id = json_data.get('MediaId')
+            if media_id:
+                file_name = wechat_manager.get_voice(media_id)
+                if file_name:
+                    json_data['OSSUrl'] = file_name
+
+        # 将处理后的消息发送给阿里云
+        message = Message(action='FORWARD_MESSAGE', data=json_data)
         response_from_aliyun = communication_manager.send_request(message)
 
         return "success"

@@ -1,9 +1,11 @@
 import json
 import mimetypes
 import os
-
 import requests
 
+from wxcloudrun.oss_restful import OssRestful
+
+oss_restful = OssRestful()
 
 class WeChatManager:
     def send_text_message(self, open_id, message):
@@ -54,27 +56,6 @@ class WeChatManager:
         response = requests.post(url, json=message_data, verify=False)
         return response.json()
 
-    def upload_image_data(self, image_data):
-        """
-        上传图片数据到微信服务器
-
-        :param image_data: 二进制图片数据
-        :return: 微信服务器返回的media_id
-        """
-        url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=image"
-        files = {'media': image_data}
-        try:
-            response = requests.post(url, files=files)
-            response.raise_for_status()  # 如果发送失败，抛出异常
-            result = response.json()
-            return result.get('media_id')  # 返回media_id
-        except requests.RequestException as e:
-            print(f"上传图片失败: {e}")
-            return None
-
-    import os
-    import mimetypes
-
     def upload_image_file(self, file):
         """
         上传文件到微信服务器
@@ -97,11 +78,6 @@ class WeChatManager:
                 return {'error': 'Media ID not found in response', 'details': result}
         except requests.RequestException as e:
             return {'error': 'Upload failed', 'details': str(e)}
-
-
-
-
-    import os
 
     def upload_voice_file(self, file):
         """
@@ -134,3 +110,15 @@ class WeChatManager:
             return {'error': '上传失败', 'details': str(e)}
 
 
+    def get_media(self, media_id):
+        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
+        response = requests.get(voice_url, stream=True)
+        if response.status_code == 200:
+            file_content = response.content
+            # 生成一个唯一的文件名
+            file_name = f"voices/{media_id}.mp3"
+            # 上传到阿里云OSS
+            oss_restful.upload_to_oss(file_name, file_name)
+            return file_name
+        else:
+            return None
