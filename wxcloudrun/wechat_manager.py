@@ -130,7 +130,7 @@ class WeChatManager:
             # 生成一个唯一的文件名
             file_name = f"voices/{media_id}.amr"
             # 上传到阿里云OSS
-            oss_restful.upload_to_oss(file_name, file_name)
+            oss_restful.upload_to_oss(file_name, file_content)
             return file_name
         else:
             return None
