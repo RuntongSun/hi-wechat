@@ -27,7 +27,7 @@ class OssRestful:
         }
 
         oss_url = f'http://{self.oss_bucket_name}.{self.oss_endpoint}/{file_name}'
-        response = requests.put(oss_url, data=file_content, headers=headers)
+        response = requests.put(oss_url, data=file_content, headers=headers, verify=False)
         if response.status_code == 200:
             print("File uploaded successfully to OSS.")
         else:
