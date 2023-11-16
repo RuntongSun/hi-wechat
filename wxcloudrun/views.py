@@ -10,9 +10,6 @@ from mns.account import Account
 from mns.mns_exception import MNSExceptionBase
 from mns.queue import Message
 
-# from mns.account import Account
-# from mns.queue import Message
-
 from run import app
 from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
