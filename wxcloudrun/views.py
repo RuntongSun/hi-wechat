@@ -11,7 +11,6 @@ from mns.mns_exception import MNSExceptionBase
 from mns.queue import Message
 
 from run import app
-from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 
 
@@ -19,8 +18,6 @@ from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 from wxcloudrun.wechat_manager import WeChatManager
 
-WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
-communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
 my_account = Account(os.environ.get('MNS_ENDPOINT_PUBLIC'), os.environ.get('ALI_KEY_ID'), os.environ.get('ALI_ACCESS_KEY_SECRET'))
 
