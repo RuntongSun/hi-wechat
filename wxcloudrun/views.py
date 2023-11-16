@@ -6,13 +6,17 @@ from datetime import datetime
 
 import requests
 from flask import render_template, request, jsonify, abort
+from mns.account import Account
+from mns.mns_exception import MNSExceptionBase
+from mns.queue import Message
+
 # from mns.account import Account
 # from mns.queue import Message
 
 from run import app
 from wxcloudrun.communication_manager import CommunicationManager
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
-from wxcloudrun.message import Message
+
 
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
@@ -21,6 +25,7 @@ from wxcloudrun.wechat_manager import WeChatManager
 WECHAT_MEDIA_URL = "http://api.weixin.qq.com/cgi-bin/media/get"  # 微信获取媒体文件的接口
 communication_manager = CommunicationManager()
 wechat_manager = WeChatManager()
+my_account = Account(os.environ.get('MNS_ENDPOINT_PUBLIC'), os.environ.get('ALI_KEY_ID'), os.environ.get('ALI_ACCESS_KEY_SECRET'))
 
 
 @app.route('/upload_voice', methods=['POST'])
@@ -127,11 +132,21 @@ def wechat():
                 json_data['OSSUrl'] = file_name
 
         # 将处理后的消息发送给阿里云
-        message = Message(action='FORWARD_MESSAGE', data=json_data)
-        response_from_aliyun = communication_manager.send_request(message)
+        # message = Message(action='FORWARD_MESSAGE', data=json_data)
+        # response_from_aliyun = communication_manager.send_request(message)
+        if msg_type == 'voice':
+            send_to_queue("voice-recognition", json_data)
 
         return "success"
 
+def send_to_queue(queue_name, message_body):
+    my_queue = my_account.get_queue(queue_name)
+    message = Message(message_body)
+    try:
+        send_msg = my_queue.send_message(message)
+        print("Send message success. MessageBody:%s MessageID:%s" % (message_body, send_msg.message_id))
+    except MNSExceptionBase as e:
+        print("Send message fail! Exception:%s\n" % e)
 
 @app.route('/')
 def index():
