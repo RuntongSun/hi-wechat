@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 
@@ -133,7 +134,8 @@ def wechat():
 
 def send_to_queue(queue_name, message_body):
     my_queue = my_account.get_queue(queue_name)
-    message = Message(message_body)
+    message_body_str = json.dumps(message_body)
+    message = Message(message_body_str)
     try:
         sending_msg = my_queue.send_message(message)
         print("Send message success. MessageBody:%s MessageID:%s" % (message_body, sending_msg.message_id))
