@@ -123,9 +123,6 @@ def wechat():
             if file_name:
                 json_data['OSSUrl'] = file_name
 
-        # 将处理后的消息发送给阿里云
-        # message = Message(action='FORWARD_MESSAGE', data=json_data)
-        # response_from_aliyun = communication_manager.send_request(message)
         if msg_type == 'voice':
             send_to_queue("voice-recognition", json_data)
 
