@@ -125,7 +125,7 @@ def wechat():
                 json_data['OSSUrl'] = file_name
 
         # if msg_type == 'voice':
-            # send_to_queue("voice-recognition", json_data)
+        send_to_queue("voice-recognition", json_data)
 
         return "success"
 
