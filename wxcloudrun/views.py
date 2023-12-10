@@ -123,14 +123,19 @@ def wechat():
             elif msg_type == 'voice':
                 file_name = wechat_manager.get_voice(media_id)
 
+            # 如果获取到文件名，则更新json_data
             if file_name:
                 json_data['OSSUrl'] = file_name
+            else:
+                # 如果没有获取到文件名，则可能需要记录日志或采取其他措施
+                print(f"Failed to get file for media_id: {media_id}")
+                return "failed to process media"
 
         # 根据消息类型选择不同的队列
         if msg_type == 'voice':
-            send_to_queue("voice-recognition", json_data)
+            send_to_queue("wechat", json_data)
         elif msg_type == 'image':
-            send_to_queue("image-processing", json_data)
+            send_to_queue("wechat", json_data)
         else:
             send_to_queue("wechat-msg", json_data)
 
