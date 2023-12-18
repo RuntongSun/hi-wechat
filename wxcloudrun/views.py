@@ -43,6 +43,25 @@ def upload_voice():
     else:
         return 'No valid media file or touser in the request', 400
 
+@app.route('/upload_image_from_url', methods=['POST'])
+def upload_image_from_url():
+    image_url = request.form.get("image_url")
+    open_id = request.form.get("touser")
+
+    if not image_url or not open_id:
+        return 'No image URL or touser in the request', 400
+
+    upload_result = wechat_manager.upload_image_from_oss(image_url)
+
+    if 'error' in upload_result:
+        return upload_result['error'], 500
+    else:
+        media_id = upload_result['media_id']
+        response_data = {
+            "upload_status": "File uploaded successfully from URL",
+            "media_id": media_id
+        }
+        return jsonify(response_data), 200
 
 @app.route('/upload_image', methods=['POST'])
 def upload_image():
