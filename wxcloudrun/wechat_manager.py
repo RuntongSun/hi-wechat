@@ -113,6 +113,39 @@ class WeChatManager:
         except requests.RequestException as e:
             return {'error': 'Upload failed', 'details': str(e)}
 
+    def upload_voice_from_oss(self, file_path):
+        """
+        从OSS下载语音文件并上传到微信服务器
+
+        :param file_path: OSS上的文件路径
+        :return: 微信服务器返回的media_id或错误信息
+        """
+        try:
+            # 从OSS下载语音文件
+            voice_content = oss_restful.download_from_oss(file_path)
+            if voice_content is None:
+                return {'error': 'Failed to download voice from OSS'}
+
+            # 猜测语音文件类型
+            file_type = mimetypes.guess_type(file_path)[0] or 'audio/mpeg'
+            file_name = file_path.split('/')[-1]
+
+            # 准备上传到微信服务器
+            upload_url = f"https://api.weixin.qq.com/cgi-bin/media/upload?type=voice"
+            files = {'media': (file_name, voice_content, file_type)}
+            upload_response = requests.post(upload_url, files=files, verify=False)
+            upload_response.raise_for_status()  # 如果上传失败，抛出异常
+            result = upload_response.json()
+            media_id = result.get('media_id')
+
+            if media_id:
+                return {'media_id': media_id}
+            else:
+                # 返回一个包含错误信息的字典
+                return {'error': 'Media ID not found in response', 'details': result}
+        except requests.RequestException as e:
+            return {'error': 'Operation failed', 'details': str(e)}
+
     def upload_voice_file(self, file):
         """
         上传语音文件到微信服务器
