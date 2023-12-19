@@ -138,9 +138,9 @@ def wechat():
             # 用于处理图片和语音消息
             file_name = None
             if msg_type == 'image':
-                file_name = wechat_manager.get_image(media_id)
+                file_name = wechat_manager.get_image(media_id, user_id)
             elif msg_type == 'voice':
-                file_name = wechat_manager.get_voice(media_id)
+                file_name = wechat_manager.get_voice(media_id, user_id)
 
             # 如果获取到文件名，则更新json_data
             if file_name:
@@ -150,13 +150,14 @@ def wechat():
                 print(f"Failed to get file for media_id: {media_id}")
                 return "failed to process media"
 
+        send_to_queue("wechat-msg", json_data)
         # 根据消息类型选择不同的队列
-        if msg_type == 'voice':
-            send_to_queue("wechat-msg", json_data)
-        elif msg_type == 'image':
-            send_to_queue("wechat-msg", json_data)
-        else:
-            send_to_queue("wechat-msg", json_data)
+        # if msg_type == 'voice':
+        #     send_to_queue("wechat-msg", json_data)
+        # elif msg_type == 'image':
+        #     send_to_queue("wechat-msg", json_data)
+        # else:
+        #     send_to_queue("wechat-msg", json_data)
 
         return "success"
 

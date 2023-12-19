@@ -143,28 +143,53 @@ class WeChatManager:
         except requests.RequestException as e:
             return {'error': '上传失败', 'details': str(e)}
 
-    def get_image(self, media_id):
-        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
-        response = requests.get(voice_url, stream=True, verify=False)
+    def get_image(self, media_id, wechat_id):
+        image_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
+        response = requests.get(image_url, stream=True, verify=False)
         if response.status_code == 200:
             file_content = response.content
-            # 生成一个唯一的文件名
-            file_name = f"voices/{media_id}.mp3"
-            # 上传到阿里云OSS
-            oss_restful.upload_to_oss(file_name, file_name)
-            return file_name
-        else:
-            return None
-
-    def get_voice(self, media_id):
-        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
-        response = requests.get(voice_url, stream=True, verify=False)
-        if response.status_code == 200:
-            file_content = response.content
-            # 生成一个唯一的文件名
-            file_name = f"voices/{media_id}.amr"
+            # 生成一个基于wechat_id的唯一文件名
+            file_name = f"wechat_users/{wechat_id}/images/{media_id}.jpg"
             # 上传到阿里云OSS
             oss_restful.upload_to_oss(file_name, file_content)
             return file_name
         else:
             return None
+    # def get_image(self, media_id, wechat_id):
+    #     voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
+    #     response = requests.get(voice_url, stream=True, verify=False)
+    #     if response.status_code == 200:
+    #         file_content = response.content
+    #         # 生成一个唯一的文件名
+    #         file_name = f"voices/{media_id}.mp3"
+    #         # 上传到阿里云OSS
+    #         oss_restful.upload_to_oss(file_name, file_name)
+    #         return file_name
+    #     else:
+    #         return None
+
+    def get_voice(self, media_id, wechat_id):
+        voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
+        response = requests.get(voice_url, stream=True, verify=False)
+        if response.status_code == 200:
+            file_content = response.content
+            # 生成一个基于wechat_id的唯一文件名
+            file_name = f"wechat_users/{wechat_id}/voices/{media_id}.amr"
+            # 上传到阿里云OSS
+            oss_restful.upload_to_oss(file_name, file_content)
+            return file_name
+        else:
+            return None
+
+    # def get_voice(self, media_id, wechat_id):
+    #     voice_url = f"https://api.weixin.qq.com/cgi-bin/media/get?media_id={media_id}"
+    #     response = requests.get(voice_url, stream=True, verify=False)
+    #     if response.status_code == 200:
+    #         file_content = response.content
+    #         # 生成一个唯一的文件名
+    #         file_name = f"voices/{media_id}.amr"
+    #         # 上传到阿里云OSS
+    #         oss_restful.upload_to_oss(file_name, file_content)
+    #         return file_name
+    #     else:
+    #         return None
