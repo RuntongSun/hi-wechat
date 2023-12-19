@@ -1,5 +1,6 @@
 import base64
 import hmac
+import mimetypes
 import os
 from datetime import datetime
 from hashlib import sha1
@@ -41,17 +42,18 @@ class OssRestful:
         return signature
 
     def upload_to_oss(self, file_name, file_content):
-
         # 创建签名
         date_str = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
         signature = self.create_signature(file_name, date_str)
+        mime_type, _ = mimetypes.guess_type(file_name)
+        if mime_type is None:
+            mime_type = 'application/octet-stream'  # 默认MIME类型
 
         headers = {
-            'Authorization': f'OSS {self.oss_access_key_id}:{signature}',
+            'Authorization': f"OSS {self.oss_access_key_id}:{signature}",
             'Date': date_str,
-            'Content-Type': 'audio/mpeg'
+            'Content-Type': mime_type
         }
-
         oss_url = f'http://{self.oss_bucket_name}.{self.oss_endpoint}/{file_name}'
         response = requests.put(oss_url, data=file_content, headers=headers, verify=False)
         if response.status_code == 200:
@@ -59,10 +61,42 @@ class OssRestful:
         else:
             print("Failed to upload file to OSS.")
 
+    # def upload_to_oss(self, file_name, file_content):
+    #
+    #     # 创建签名
+    #     date_str = datetime.utcnow().strftime('%a, %d %b %Y %H:%M:%S GMT')
+    #     signature = self.create_signature(file_name, date_str)
+    #
+    #     headers = {
+    #         'Authorization': f'OSS {self.oss_access_key_id}:{signature}',
+    #         'Date': date_str,
+    #         'Content-Type': 'audio/mpeg'
+    #     }
+    #
+    #     oss_url = f'http://{self.oss_bucket_name}.{self.oss_endpoint}/{file_name}'
+    #     response = requests.put(oss_url, data=file_content, headers=headers, verify=False)
+    #     if response.status_code == 200:
+    #         print("File uploaded successfully to OSS.")
+    #     else:
+    #         print("Failed to upload file to OSS.")
+
     def create_signature(self, file_name, date_str):
-        # 签名字符串
-        signature_string = f"PUT\n\naudio/mpeg\n{date_str}\n/{self.oss_bucket_name}/{file_name}"
+        # 猜测文件的MIME类型
+        mime_type, _ = mimetypes.guess_type(file_name)
+        if mime_type is None:
+            mime_type = 'application/octet-stream'  # 默认MIME类型
+
+        # 创建签名字符串
+        signature_string = f"PUT\n\n{mime_type}\n{date_str}\n/{self.oss_bucket_name}/{file_name}"
         # 使用HMAC-SHA1算法生成签名
         signature = base64.b64encode(
             hmac.new(self.oss_access_key_secret.encode(), signature_string.encode(), sha1).digest()).decode()
         return signature
+
+    # def create_signature(self, file_name, date_str):
+    #     # 签名字符串
+    #     signature_string = f"PUT\n\naudio/mpeg\n{date_str}\n/{self.oss_bucket_name}/{file_name}"
+    #     # 使用HMAC-SHA1算法生成签名
+    #     signature = base64.b64encode(
+    #         hmac.new(self.oss_access_key_secret.encode(), signature_string.encode(), sha1).digest()).decode()
+    #     return signature
